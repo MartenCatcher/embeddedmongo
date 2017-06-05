@@ -5,6 +5,13 @@ import (
 )
 
 func TestExtract(T *testing.T) {
-	d := &Distribution{Dir:"test/resources", Os:"win32", Platform:"x86_64", Version:V3_4_1, Extension:"zip"}
+	d := &Distribution{Configuration: Configuration{Dir: "./test/resources", Version: V3_4_1}, Os: "win32", Platform: "x86_64", Extension: "zip"}
 	Extract(d, Mongod)
+}
+
+func TestFork(T *testing.T) {
+	var app = "./test/resources/win32/mongod.exe"
+	p, _ := NewProcess(app,  "--logpath", "E:\\tools\\mongo\\logs\\mongo.log", "--dbpath", "E:\\tools\\mongo\\db")
+
+	defer p.Stop()
 }

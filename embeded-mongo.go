@@ -1,12 +1,7 @@
 package embeded_mongo
 
 import (
-	"time"
-	"archive/zip"
-	"regexp"
-	"fmt"
-	"os"
-	"io"
+	"runtime"
 )
 
 type (
@@ -23,60 +18,51 @@ const (
 )
 
 type Distribution struct {
-	Dir       string
+	Configuration
+	Url       string
 	Os        string
 	Platform  string
-	Version   Version
 	Extension string
 }
 
 type Configuration struct {
-	Version    Version
-	Timeout    time.Duration
-	Net        string
-	CmdOptions []string
-	PidFile    string
-	Username   string
-	Password   string
-	DBName     string
+	Version Version
+	Dir     string
 }
 
-func Extract(d *Distribution, command Command) {
-	workDir :=fmt.Sprintf("%v/%v/", d.Dir, d.Os)
-	path := fmt.Sprintf("%v%v-%v-%v-%v.%v", workDir, "mongodb", d.Os, d.Platform, d.Version, d.Extension)
-	r, err := zip.OpenReader(path)
-	if err != nil {
-		panic(err)
-	}
-	defer r.Close()
-
-	regexFilename, err := regexp.Compile(".*/([^/]*)$")
-	if err != nil {
-		panic(err)
+func NewDistribution(configuration Configuration) *Distribution {
+	//TODO: use build instructions
+	var extension string
+	var url string
+	if runtime.GOOS == "windows" {
+		extension = "zip"
+		url = "https://downloads.mongodb.org/"
+	} else {
+		extension = "tgz";
+		url = "https://fastdl.mongodb.org/"
 	}
 
-	//TODO: use command for file choosing
-	regexCommand, err := regexp.Compile("mongod(.exe)?$")
-	if err != nil {
-		panic(err)
+	var os string
+	switch runtime.GOOS {
+	case "darwin":  os = "osx"
+	case "freebsd": os = "freebsd"
+	case "windows": os = "win32"
+	case "linux":   os = "linux"
 	}
 
-	for _, file := range r.File {
-		name := regexFilename.ReplaceAllString(file.Name, "$1")
-		isExec := regexCommand.MatchString(name)
-		fmt.Printf("%v\t\t\t%v\n", file.Name, name)
-		if isExec {
-			extractOneFile(file, workDir, name)
+	var bitSize string
+	switch runtime.GOARCH {
+	case "386":
+		if runtime.GOOS == "linux" {
+			bitSize = "i686"
+		} else {
+			bitSize = "i386"
 		}
+	case "amd64":
+		bitSize = "x86_64"
 	}
-}
 
-func extractOneFile(file *zip.File, workDir string, name string) {
-	reader, _ := file.Open()
-	//TODO: catch error
-	defer reader.Close()
+	// return distribution.getPlatform() == Platform.Windows?:;
 
-	f, _ := os.OpenFile(workDir+name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModeTemporary)
-	//TODO: catch error
-	io.Copy(f, reader)
+	return &Distribution{Configuration: configuration, Url: url, Os: os, Platform: bitSize, Extension: extension}
 }
