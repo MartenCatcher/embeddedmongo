@@ -5,26 +5,58 @@ import (
 	"os/exec"
 	"log"
 	"syscall"
+	"distribution/uuid"
 )
 
 type Process struct {
 	Pid int
-	c *exec.Cmd
+	Tmp string
+	c   *exec.Cmd
 }
 
-func NewProcess(command string, args ...string) (*Process, error) {
-	c := exec.Command(command, args...)
+func NewProcess(app string, dir string) (*Process, error) {
+	uuid, err := moveToTmp(app, dir)
+	if err != nil {
+		return nil, err
+	}
+
+	tmp := dir + uuid
+	//
+	c := exec.Command(tmp+"/"+app, "--logpath", tmp+"/mongo.log", "--dbpath", tmp+"/db")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	c.Start()
+	err = c.Start()
+	if err != nil {
+
+		return nil, err
+	}
 
 	log.Printf("Started Mongo instance with pid=%+v", c.Process.Pid)
 
-	return &Process{c: c, Pid: c.Process.Pid}, nil
+	return &Process{c: c, Tmp: tmp, Pid: c.Process.Pid}, nil
+}
+
+func moveToTmp(app string, dir string) (string, error) {
+	id := uuid.Generate().String()
+
+	tmp := dir + id
+	if err := os.MkdirAll(tmp+"/db", 0755); err != nil {
+		return "", err
+	}
+	if err := os.Rename(dir+"/"+app, tmp+"/"+app); err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
 
 func (p *Process) Stop() error {
 	var err error
+	defer func() {
+		if err := os.RemoveAll(p.Tmp); err != nil {
+			log.Fatal(err)
+		}
+	}()
 	if err = p.c.Process.Signal(syscall.SIGTERM); err != nil {
 		return err
 	}

@@ -2,6 +2,9 @@ package embeded_mongo
 
 import (
 	"testing"
+	"fmt"
+	"log"
+	"os"
 )
 
 func TestExtract(T *testing.T) {
@@ -10,8 +13,38 @@ func TestExtract(T *testing.T) {
 }
 
 func TestFork(T *testing.T) {
-	var app = "./test/resources/win32/mongod.exe"
-	p, _ := NewProcess(app,  "--logpath", "E:\\tools\\mongo\\logs\\mongo.log", "--dbpath", "E:\\tools\\mongo\\db")
+	p, _ := NewProcess("mongod.exe", "./test/resources/win32/")
+
+	defer p.Stop()
+}
+
+func TestNewDistribution(T *testing.T) {
+	fmt.Printf("%+v", NewDistribution(Configuration{}))
+}
+
+func TestIntegration(T *testing.T) {
+	wd, _ := os.Getwd()
+	d := NewDistribution(Configuration{Version: V3_4_1, Dir: wd+"/test/resources/"})
+	err := Download(GetDistributionName(d), GetWorkDir(d), GetDistributionUrl(d))
+	if err != nil {
+		log.Printf("Download error: %v\n", err)
+		panic(err)
+	}
+
+	app, err := Extract(d, Mongod)
+	if err != nil {
+		log.Printf("Extracting error: %v\n", err)
+		panic(err)
+	}
+
+	dir := GetWorkDir(d)
+	p, err := NewProcess(app, dir)
+	if err != nil {
+		log.Printf("Extracting error: %v\n", err)
+		panic(err)
+	}
+
+	log.Printf("%+v", p)
 
 	defer p.Stop()
 }
