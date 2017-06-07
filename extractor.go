@@ -27,13 +27,18 @@ func Extract(d *Distribution, command Command) (string, error) {
 		return "", err
 	}
 
+	tmp := GetTmpDir(d)
+	CreateDir(tmp)
+	if err != nil {
+		return "", err
+	}
 	app := func() string {
 		for _, file := range r.File {
 			name := regexFilename.ReplaceAllString(file.Name, "$1")
 			isExec := regexCommand.MatchString(name)
 			//log.Printf("%v\t\t\t%v\n", file.Name, name)
 			if isExec {
-				extractOneFile(file, workDir + name)
+				extractOneFile(file, tmp+name)
 				return name
 			}
 		}

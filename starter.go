@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/exec"
 	"log"
-	"distribution/uuid"
 )
 
 type Process struct {
@@ -14,37 +13,20 @@ type Process struct {
 }
 
 func NewProcess(app string, dir string) (*Process, error) {
-	id, err := moveToTmp(app, dir)
-	if err != nil {
+	if err := CreateDir(dir+"/db"); err != nil {
 		return nil, err
 	}
 
-	tmp := dir + id
-
-	c := exec.Command(tmp+"/"+app, "--logpath", tmp+"/mongo.log", "--dbpath", tmp+"/db")
+	c := exec.Command(dir+"/"+app, "--logpath", dir+"/mongo.log", "--dbpath", dir+"/db")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	if err = c.Start(); err != nil {
+	if err := c.Start(); err != nil {
 		return nil, err
 	}
 
 	log.Printf("Started Mongo instance with pid=%+v", c.Process.Pid)
 
-	return &Process{c: c, Tmp: tmp, Pid: c.Process.Pid}, nil
-}
-
-func moveToTmp(app string, dir string) (string, error) {
-	id := uuid.Generate().String()
-
-	tmp := dir + id
-	if err := os.MkdirAll(tmp+"/db", 0755); err != nil {
-		return "", err
-	}
-	if err := os.Rename(dir+"/"+app, tmp+"/"+app); err != nil {
-		return "", err
-	}
-
-	return id, nil
+	return &Process{c: c, Tmp: dir, Pid: c.Process.Pid}, nil
 }
 
 func (p *Process) Stop() error {

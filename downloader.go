@@ -9,7 +9,7 @@ import (
 func Download(fileName string, workDir string, url string) (err error) {
 	filePath := workDir+fileName
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		CreateWorkDir(workDir)
+		CreateDir(workDir)
 
 		out, err := os.Create(filePath)
 		if err != nil  {

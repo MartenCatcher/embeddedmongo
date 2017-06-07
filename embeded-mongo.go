@@ -4,6 +4,7 @@ import (
 	"embeded-mongo/env"
 	"fmt"
 	"os"
+	"distribution/uuid"
 )
 
 type (
@@ -25,6 +26,7 @@ type Distribution struct {
 	Os        string
 	Platform  string
 	Extension string
+	Tmp       string
 }
 
 type Configuration struct {
@@ -33,7 +35,14 @@ type Configuration struct {
 }
 
 func NewDistribution(configuration Configuration) *Distribution {
-	return &Distribution{Configuration: configuration, Url: env.MONGO_URL, Os: env.MONGO_OS, Platform: env.MONGO_BITSIZE, Extension: env.MONGO_EXT}
+	return &Distribution{
+		Configuration: configuration,
+		Url:           env.MONGO_URL,
+		Os:            env.MONGO_OS,
+		Platform:      env.MONGO_BITSIZE,
+		Extension:     env.MONGO_EXT,
+		Tmp:           uuid.Generate().String(),
+	}
 }
 
 func GetDistributionName(d *Distribution) string {
@@ -48,7 +57,11 @@ func GetWorkDir(d *Distribution) string {
 	return fmt.Sprintf("%v%v/", d.Dir, d.Os)
 }
 
-func CreateWorkDir(path string) (error) {
+func GetTmpDir(d *Distribution) string {
+	return fmt.Sprintf("%v%v/%v/", d.Dir, d.Os, d.Tmp)
+}
+
+func CreateDir(path string) (error) {
 	err := os.MkdirAll(path, 0755)
 	return err
 }
