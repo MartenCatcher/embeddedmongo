@@ -2,7 +2,6 @@ package embeded_mongo
 
 import (
 	"testing"
-	"fmt"
 	"log"
 	"os"
 )
@@ -19,7 +18,7 @@ func TestFork(T *testing.T) {
 }
 
 func TestNewDistribution(T *testing.T) {
-	fmt.Printf("%+v", NewDistribution(Configuration{}))
+	log.Printf("%+v", NewDistribution(Configuration{}))
 }
 
 func TestIntegration(T *testing.T) {

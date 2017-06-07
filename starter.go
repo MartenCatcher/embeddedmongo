@@ -58,10 +58,12 @@ func (p *Process) Stop() error {
 		}
 	}()
 	if err = p.c.Process.Signal(syscall.SIGTERM); err != nil {
+		log.Printf("Process sigterm error [pid='%s', err=%v]", p.Pid, err)
 		return err
 	}
 
 	if err = p.c.Wait(); err != nil {
+		log.Printf("Process completion waiting error [pid='%s', err=%v]", p.Pid, err)
 		return err
 	}
 
