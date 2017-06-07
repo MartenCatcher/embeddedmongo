@@ -1,10 +1,10 @@
-package embeded_mongo
+package embeddedmongo
 
 import (
 	"archive/zip"
-	"regexp"
-	"os"
 	"io"
+	"os"
+	"regexp"
 )
 
 func Extract(d *Distribution, command Command) (string, error) {

@@ -1,10 +1,10 @@
-package embeded_mongo
+package embeddedmongo
 
 import (
+	"distribution/uuid"
 	"embeded-mongo/env"
 	"fmt"
 	"os"
-	"distribution/uuid"
 )
 
 type (
@@ -61,7 +61,7 @@ func GetTmpDir(d *Distribution) string {
 	return fmt.Sprintf("%v%v/%v/", d.Dir, d.Os, d.Tmp)
 }
 
-func CreateDir(path string) (error) {
+func CreateDir(path string) error {
 	err := os.MkdirAll(path, 0755)
 	return err
 }

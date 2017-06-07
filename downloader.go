@@ -1,18 +1,18 @@
-package embeded_mongo
+package embeddedmongo
 
 import (
-	"os"
-	"net/http"
 	"io"
+	"net/http"
+	"os"
 )
 
 func Download(fileName string, workDir string, url string) (err error) {
-	filePath := workDir+fileName
+	filePath := workDir + fileName
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		CreateDir(workDir)
 
 		out, err := os.Create(filePath)
-		if err != nil  {
+		if err != nil {
 			return err
 		}
 		defer out.Close()
@@ -24,7 +24,7 @@ func Download(fileName string, workDir string, url string) (err error) {
 		defer resp.Body.Close()
 
 		_, err = io.Copy(out, resp.Body)
-		if err != nil  {
+		if err != nil {
 			return err
 		}
 

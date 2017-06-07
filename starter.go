@@ -1,9 +1,9 @@
-package embeded_mongo
+package embeddedmongo
 
 import (
+	"log"
 	"os"
 	"os/exec"
-	"log"
 )
 
 type Process struct {
@@ -13,7 +13,7 @@ type Process struct {
 }
 
 func NewProcess(app string, dir string) (*Process, error) {
-	if err := CreateDir(dir+"/db"); err != nil {
+	if err := CreateDir(dir + "/db"); err != nil {
 		return nil, err
 	}
 

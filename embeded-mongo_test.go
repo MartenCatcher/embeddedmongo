@@ -1,9 +1,9 @@
-package embeded_mongo
+package embeddedmongo
 
 import (
-	"testing"
 	"log"
 	"os"
+	"testing"
 )
 
 func TestExtract(T *testing.T) {
