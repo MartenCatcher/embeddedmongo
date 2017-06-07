@@ -2,9 +2,9 @@ package embeddedmongo
 
 import (
 	"distribution/uuid"
-	"embeddedmongo/env"
 	"fmt"
 	"os"
+	"github.com/MartenCatcher/embeddedmongo/env"
 )
 
 type (
