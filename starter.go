@@ -51,20 +51,20 @@ func (p *Process) Stop() error {
 	var err error
 	defer func() {
 		if err := os.RemoveAll(p.Tmp); err != nil {
-			log.Fatal(err)
+			log.Printf("Can't remove tmp dir: %v", err)
 		}
 	}()
 
 	if err = p.c.Process.Kill(); err != nil {
-		log.Printf("Process kill error [pid='%s', err=%v]", p.Pid, err)
+		log.Printf("Process kill error [pid='%v', err=%v]", p.Pid, err)
 		return err
 	}
 
 	if err = p.c.Wait(); err != nil {
-		log.Printf("Process completion waiting error [pid='%s', err=%v]", p.Pid, err)
+		log.Printf("Process completion waiting error [pid='%v', err=%v]", p.Pid, err)
 		return err
 	}
 
-	log.Printf("Process [pid='%s'] stopped", p.Pid)
+	log.Printf("Process [pid='%v'] stopped", p.Pid)
 	return nil
 }
