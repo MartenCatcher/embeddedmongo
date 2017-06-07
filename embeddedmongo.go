@@ -2,7 +2,7 @@ package embeddedmongo
 
 import (
 	"distribution/uuid"
-	"embeded-mongo/env"
+	"embeddedmongo/env"
 	"fmt"
 	"os"
 )
