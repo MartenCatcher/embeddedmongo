@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/exec"
 	"log"
-	"syscall"
 	"distribution/uuid"
 )
 
@@ -15,19 +14,17 @@ type Process struct {
 }
 
 func NewProcess(app string, dir string) (*Process, error) {
-	uuid, err := moveToTmp(app, dir)
+	id, err := moveToTmp(app, dir)
 	if err != nil {
 		return nil, err
 	}
 
-	tmp := dir + uuid
-	//
+	tmp := dir + id
+
 	c := exec.Command(tmp+"/"+app, "--logpath", tmp+"/mongo.log", "--dbpath", tmp+"/db")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	err = c.Start()
-	if err != nil {
-
+	if err = c.Start(); err != nil {
 		return nil, err
 	}
 
@@ -57,8 +54,9 @@ func (p *Process) Stop() error {
 			log.Fatal(err)
 		}
 	}()
-	if err = p.c.Process.Signal(syscall.SIGTERM); err != nil {
-		log.Printf("Process sigterm error [pid='%s', err=%v]", p.Pid, err)
+
+	if err = p.c.Process.Kill(); err != nil {
+		log.Printf("Process kill error [pid='%s', err=%v]", p.Pid, err)
 		return err
 	}
 
