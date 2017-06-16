@@ -23,7 +23,7 @@ func TestNewDistribution(T *testing.T) {
 
 func TestIntegration(T *testing.T) {
 	wd, _ := os.Getwd()
-	d := NewDistribution(Configuration{Version: V3_4_1, Dir: wd + "/test/resources/"})
+	d := NewDistribution(Configuration{Version: V3_4_1, Dir: wd + "/test/resources/"}, "https://fastdl.mongodb.org/")
 	err := Download(GetDistributionName(d), GetWorkDir(d), GetDistributionUrl(d))
 	if err != nil {
 		log.Printf("Download error: %v\n", err)

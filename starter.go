@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 type Process struct {
@@ -34,9 +35,11 @@ func (p *Process) Stop() error {
 	defer func() {
 		if err := os.RemoveAll(p.Tmp); err != nil {
 			log.Printf("Can't remove tmp dir: %v", err)
+			log.Printf( "123!!! %v", os.RemoveAll(p.Tmp));
 		}
 	}()
 
+	//TODO: terminate gracefully, signals doesn't work in windows
 	if err = p.c.Process.Kill(); err != nil {
 		log.Printf("Process kill error [pid='%v', err=%v]", p.Pid, err)
 		return err

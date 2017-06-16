@@ -18,6 +18,7 @@ const (
 
 const (
 	V3_4_1 Version = "3.4.1"
+	DEFAULT_URL = "https://fastdl.mongodb.org/"
 )
 
 type Distribution struct {
@@ -34,10 +35,13 @@ type Configuration struct {
 	Dir     string
 }
 
-func NewDistribution(configuration Configuration) *Distribution {
+func NewDistribution(configuration Configuration, url ...string) *Distribution {
+	if len(url) == 0 {
+		url[0] = DEFAULT_URL
+	}
 	return &Distribution{
 		Configuration: configuration,
-		Url:           env.MONGO_URL,
+		Url:           url[0],
 		Os:            env.MONGO_OS,
 		Platform:      env.MONGO_BITSIZE,
 		Extension:     env.MONGO_EXT,
