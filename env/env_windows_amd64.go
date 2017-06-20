@@ -1,4 +1,3 @@
-// +build windows,amd64
 package env
 
 func init() {
