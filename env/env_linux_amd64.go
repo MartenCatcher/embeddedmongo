@@ -1,4 +1,3 @@
-// +build linux,386
 package env
 
 func init() {
