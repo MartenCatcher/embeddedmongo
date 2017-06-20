@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"syscall"
 )
 
 type Process struct {

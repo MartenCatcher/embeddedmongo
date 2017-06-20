@@ -36,17 +36,21 @@ type Configuration struct {
 }
 
 func NewDistribution(configuration Configuration, url ...string) *Distribution {
-	if len(url) == 0 {
-		url[0] = DEFAULT_URL
-	}
 	return &Distribution{
 		Configuration: configuration,
-		Url:           url[0],
+		Url:           getUrl(url),
 		Os:            env.MONGO_OS,
 		Platform:      env.MONGO_BITSIZE,
 		Extension:     env.MONGO_EXT,
 		Tmp:           uuid.Generate().String(),
 	}
+}
+
+func getUrl(url []string) string {
+	if len(url) == 0 {
+		return DEFAULT_URL
+	}
+	return url[0]
 }
 
 func GetDistributionName(d *Distribution) string {
