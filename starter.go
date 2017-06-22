@@ -17,7 +17,7 @@ func NewProcess(app string, dir string) (*Process, error) {
 		return nil, err
 	}
 
-	c := exec.Command(dir+"/"+app, "--logpath", dir+"/mongo.log", "--dbpath", dir+"/db")
+	c := exec.Command(app, "--logpath", dir+"/mongo.log", "--dbpath", dir+"/db")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	if err := c.Start(); err != nil {
@@ -34,7 +34,8 @@ func (p *Process) Stop() error {
 	defer func() {
 		if err := os.RemoveAll(p.Tmp); err != nil {
 			log.Printf("Can't remove tmp dir: %v", err)
-			log.Printf( "123!!! %v", os.RemoveAll(p.Tmp));
+		} else {
+			log.Printf("%v successfully removed with contents.", p.Tmp)
 		}
 	}()
 
