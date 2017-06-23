@@ -1,60 +1,42 @@
 package embeddedmongo
 
 import (
-	"archive/zip"
-	"io"
+	"errors"
+	"fmt"
+	"log"
 	"os"
-	"regexp"
+	"path/filepath"
+
+	"github.com/mholt/archiver"
 )
 
-func Extract(d *Distribution, command Command) (string, error) {
-	workDir := GetWorkDir(d)
-	path := workDir + GetDistributionName(d)
-	r, err := zip.OpenReader(path)
-	if err != nil {
-		return "", err
-	}
-	defer r.Close()
+// Extract the distribution and return the directory files list
+func Extract(d *Distribution) ([]string, error) {
 
-	regexFilename, err := regexp.Compile(".*/([^/]*)$")
-	if err != nil {
-		return "", err
-	}
+	files := []string{}
 
-	//TODO: use command for file choosing
-	regexCommand, err := regexp.Compile("mongod(.exe)?$")
+	path := GetWorkDir(d) + GetDistributionName(d)
+	temp := GetTmpDir(d)
+
+	err := CreateDir(temp)
 	if err != nil {
-		return "", err
+		log.Println(err)
+		return files, err
 	}
 
-	tmp := GetTmpDir(d)
-	CreateDir(tmp)
-	if err != nil {
-		return "", err
+	switch d.Extension {
+	case "zip":
+		err = archiver.Zip.Open(path, temp)
+	case "tgz":
+		err = archiver.TarGz.Open(path, temp)
+	default:
+		return files, errors.New(fmt.Sprintf("not supported archive: %v", d.Extension))
 	}
-	app := func() string {
-		for _, file := range r.File {
-			name := regexFilename.ReplaceAllString(file.Name, "$1")
-			isExec := regexCommand.MatchString(name)
-			//log.Printf("%v\t\t\t%v\n", file.Name, name)
-			if isExec {
-				extractOneFile(file, tmp+name)
-				return name
-			}
-		}
-		return ""
-	}()
 
-	return app, nil
-}
+	err = filepath.Walk(temp, func(fpath string, f os.FileInfo, err error) error {
+		files = append(files, fpath)
+		return nil
+	})
 
-func extractOneFile(file *zip.File, path string) {
-	reader, _ := file.Open()
-	//TODO: catch error
-	defer reader.Close()
-
-	f, _ := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModeTemporary)
-	defer f.Close()
-	//TODO: catch error
-	io.Copy(f, reader)
+	return files, nil
 }

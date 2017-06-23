@@ -3,42 +3,49 @@ package embeddedmongo
 import (
 	"log"
 	"os"
+	"regexp"
 	"testing"
 )
-
-func TestExtract(T *testing.T) {
-	d := &Distribution{Configuration: Configuration{Dir: "./test/resources", Version: V3_4_1}, Os: "win32", Platform: "x86_64", Extension: "zip"}
-	Extract(d, Mongod)
-}
-
-func TestFork(T *testing.T) {
-	p, _ := NewProcess("mongod.exe", "./test/resources/win32/")
-
-	defer p.Stop()
-}
 
 func TestNewDistribution(T *testing.T) {
 	log.Printf("%+v", NewDistribution(Configuration{}))
 }
 
 func TestIntegration(T *testing.T) {
+
 	wd, _ := os.Getwd()
-	d := NewDistribution(Configuration{Version: V3_4_1, Dir: wd + "/test/resources/"}, "https://fastdl.mongodb.org/")
-	err := Download(GetDistributionName(d), GetWorkDir(d), GetDistributionUrl(d))
+
+	d := NewDistribution(
+		Configuration{
+			Version: V3_4_1,
+			Dir:     wd + "/test/resources/",
+		}, "https://fastdl.mongodb.org/",
+	)
+
+	_, err := Download(d)
 	if err != nil {
 		log.Printf("Download error: %v\n", err)
 		panic(err)
 	}
 
-	app, err := Extract(d, Mongod)
+	extracted, err := Extract(d)
 	if err != nil {
-		log.Printf("Extracting error: %v\n", err)
+		log.Printf("Extract error: %v\n", err)
 		panic(err)
 	}
 
-	p, err := NewProcess(app, GetTmpDir(d))
+	binary := ""
+	re := regexp.MustCompile("mongod(.exe)?$")
+	for _, file := range extracted {
+		if re.FindString(file) != "" {
+			binary = file
+			break
+		}
+	}
+
+	p, err := NewProcess(binary, GetTmpDir(d))
 	if err != nil {
-		log.Printf("Extracting error: %v\n", err)
+		log.Printf("Executing error: %v\n", err)
 		panic(err)
 	}
 

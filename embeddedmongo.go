@@ -3,6 +3,7 @@ package embeddedmongo
 import (
 	"fmt"
 	"os"
+
 	"github.com/MartenCatcher/embeddedmongo/env"
 	"github.com/MartenCatcher/embeddedmongo/uuid"
 )
@@ -10,10 +11,6 @@ import (
 type (
 	Command int
 	Version string
-)
-
-const (
-	Mongod Command = iota
 )
 
 const (
