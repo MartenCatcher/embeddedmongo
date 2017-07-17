@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"log"
 )
 
 // Download the distribution or report an error
@@ -14,10 +15,12 @@ func Download(d *Distribution) (file string, err error) {
 	workDir := GetWorkDir(d)
 	filePath := workDir + GetDistributionName(d)
 
-	if _, err := os.Stat(filePath); os.IsExist(err) {
-		return filePath, errors.New("file exists")
+	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+		log.Printf("File '%v' already exisis, won't download it again", filePath)
+		return filePath, nil
 	}
 
+	log.Printf("File '%v' not found, starting download", filePath)
 	url := GetDistributionUrl(d)
 
 	resp, err := http.Get(url)
